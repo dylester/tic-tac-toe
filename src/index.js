@@ -1,9 +1,9 @@
-import React from 'https://esm.sh/react'
+import React, {useState} from 'https://esm.sh/react'
 import ReactDOM from 'https://esm.sh/react-dom';
 
-const Square = props => (
-    <button className="square" onClick={props.onClick}>
-        {props.value}
+const Square = ({value, onClick}) => (
+    <button className="square" onClick={onClick}>
+        {value}
     </button>
 );
 
@@ -17,24 +17,38 @@ class Board extends React.Component {
     }
 
     handleClick(i) {
+        if (this.props.player === null) {
+            return;
+        }
+        let nextPlayer = this.state.xIsNext ? 'X' : 'O';
+        if (this.props.player !== nextPlayer) {
+            return;
+        }
         const squares = this.state.squares.slice();
         if (calculateWinner(squares) || squares[i]) {
             return;
         }
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
+        squares[i] = nextPlayer;
         this.setState({
             squares: squares,
             xIsNext: !this.state.xIsNext,
         });
-    }
-
-    renderSquare(i) {
-        return (
-            <Square
-                value={this.state.squares[i]}
-                onClick={() => this.handleClick(i)}
-            />
-        );
+        fetch(`/squares/${i}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                player: nextPlayer,
+            }),
+        })
+            .then(response => response.json())
+            .then(json => {
+                console.log(json);
+                this.setState({
+                    squares: json
+                });
+            });
     }
 
     render() {
@@ -50,40 +64,75 @@ class Board extends React.Component {
             <div>
                 <div className="status">{status}</div>
                 <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
+                    <Square
+                        value={this.state.squares[0]}
+                        onClick={() => this.handleClick(0)}
+                    />
+                    <Square
+                        value={this.state.squares[1]}
+                        onClick={() => this.handleClick(1)}
+                    />
+                    <Square
+                        value={this.state.squares[2]}
+                        onClick={() => this.handleClick(2)}
+                    />
                 </div>
                 <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
+                    <Square
+                        value={this.state.squares[3]}
+                        onClick={() => this.handleClick(3)}
+                    />
+                    <Square
+                        value={this.state.squares[4]}
+                        onClick={() => this.handleClick(4)}
+                    />
+                    <Square
+                        value={this.state.squares[5]}
+                        onClick={() => this.handleClick(5)}
+                    />
                 </div>
                 <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
+                    <Square
+                        value={this.state.squares[6]}
+                        onClick={() => this.handleClick(6)}
+                    />
+                    <Square
+                        value={this.state.squares[7]}
+                        onClick={() => this.handleClick(7)}
+                    />
+                    <Square
+                        value={this.state.squares[8]}
+                        onClick={() => this.handleClick(8)}
+                    />
                 </div>
             </div>
         );
     }
 }
 
-class Game extends React.Component {
-    render() {
-        return (
-            <div className="game">
-                <div className="game-board">
-                    <Board/>
-                </div>
-                <div className="game-info">
-                    <div>{/* status */}</div>
-                    <ol>{/* TODO */}</ol>
-                </div>
+const Game = () => {
+    const [player, setPlayer] = useState(null);
+    const playerChoice = player === null ?
+        <div>
+            Play as
+            <button onClick={() => setPlayer('X')}>X</button>
+            <button onClick={() => setPlayer('O')}>O</button>
+        </div>
+        : <div>
+            Playing as {player}
+        </div>;
+
+    return (
+        <div className="game">
+            <div className="game-board">
+                <Board player={player}/>
             </div>
-        );
-    }
-}
+            <div className="game-info">
+                {playerChoice}
+            </div>
+        </div>
+    );
+};
 
 // ========================================
 
