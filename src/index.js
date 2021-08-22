@@ -16,6 +16,20 @@ class Board extends React.Component {
         };
     }
 
+    componentDidMount(){
+        fetch(`/squares`, {
+            method: 'GET',
+        })
+            .then(response => response.json())
+            .then(json => {
+                console.log(json);
+                this.setState({
+                    squares: json.squares,
+                    xIsNext: json.isNextPlayerX,
+                });
+            });
+    }
+
     handleClick(i) {
         if (this.props.player === null) {
             return;
@@ -35,12 +49,6 @@ class Board extends React.Component {
         });
         fetch(`/squares/${i}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                player: nextPlayer,
-            }),
         })
             .then(response => response.json())
             .then(json => {
