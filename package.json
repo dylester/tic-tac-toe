@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node lib/index.js",
     "start:watch": "nodemon lib/index.js",
+    "build": "babel src --out-dir public --presets react-app/prod",
     "build:watch": "babel --watch src --out-dir public --presets react-app/prod"
   },
   "dependencies": {
