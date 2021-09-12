@@ -17,17 +17,19 @@ class Board extends React.Component {
     }
 
     componentDidMount(){
-        fetch(`/squares`, {
-            method: 'GET',
-        })
-            .then(response => response.json())
-            .then(json => {
-                console.log(json);
-                this.setState({
-                    squares: json.squares,
-                    xIsNext: json.isNextPlayerX,
+        setInterval(() => {
+            fetch(`/squares`, {
+                method: 'GET',
+            })
+                .then(response => response.json())
+                .then(json => {
+                    console.log(json);
+                    this.setState({
+                        squares: json.squares,
+                        xIsNext: json.isNextPlayerX,
+                    });
                 });
-            });
+        },5000)
     }
 
     handleClick(i) {
@@ -58,6 +60,7 @@ class Board extends React.Component {
                 });
             });
     }
+
 
     render() {
         const winner = calculateWinner(this.state.squares);
@@ -118,6 +121,7 @@ class Board extends React.Component {
     }
 }
 
+// add a button that makes an http request with a delete method 
 const Game = () => {
     const [player, setPlayer] = useState(null);
     const playerChoice = player === null ?
@@ -129,7 +133,6 @@ const Game = () => {
         : <div>
             Playing as {player}
         </div>;
-
     return (
         <div className="game">
             <div className="game-board">
